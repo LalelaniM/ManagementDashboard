@@ -261,9 +261,7 @@ async function getTransferReport(date) {
         }
     );
 
-    console.log(
-    JSON.stringify(response.data.records[0], null, 2)
-    );
+    //console.log(JSON.stringify(response.data.records[0], null, 2));
 
     return response.data;
 }
@@ -420,7 +418,7 @@ app.get("/api/transfers", async (req, res) => {
             )
         ];
 
-        console.log(`Products needed: ${productIDs.length}`);
+        //console.log(`Products needed: ${productIDs.length}`);
 
         // Load ONLY those products
         const productLookup =
