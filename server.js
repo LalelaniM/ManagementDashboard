@@ -3,9 +3,9 @@ const axios = require("axios");
 const cors = require("cors");
 const XLSX = require("xlsx");
 const path = require("path");
-
+let productCache = {};
 const app = express();
-const PORT = 3000;
+//const PORT = 3000;
 
 app.use(cors());
 app.use(express.static("public"));
@@ -13,8 +13,6 @@ app.use(express.static("public"));
 /*
 ====================================================
     VERIFY USER
-    Replace this function with your existing
-    verifyUser() code.
 ====================================================
 */
 /*const CLIENT_CODE = process.env.CLIENT_CODE;
@@ -25,11 +23,7 @@ const ERPLY_URL = process.env.ERPLY_URL;*/
 const CLIENT_CODE = "538868";
 const USERNAME = "Gift";
 const PASSWORD = "Gift9663";
-
-const ERPLY_URL =
-  `https://538868.erply.com/api/`;
-
-
+const ERPLY_URL =`https://538868.erply.com/api/`;
 
 let sessionKey = null;
 let sessionExpiry = 0;
@@ -43,13 +37,10 @@ async function verifyUser() {
     // Use cached session if still valid
 
     if (sessionKey && Date.now() < sessionExpiry) {
-
         return sessionKey;
-
     }
 
     try {
-
         const formData = new URLSearchParams();
 
         formData.append("clientCode", CLIENT_CODE);
@@ -57,61 +48,26 @@ async function verifyUser() {
         formData.append("password", PASSWORD);
         formData.append("request", "verifyUser");
 
-        const response = await axios.post(
-
-            ERPLY_URL,
-
-            formData,
-
-            {
-
-                headers: {
-
-                    "Content-Type":
-                        "application/x-www-form-urlencoded"
-
-                }
-
-            }
-
-        );
-
+        const response = await axios.post(ERPLY_URL,formData,{headers: {"Content-Type":"application/x-www-form-urlencoded"}});
         const data = response.data;
 
-        if (
-
-            !data.status ||
-
-            data.status.responseStatus !== "ok"
-
-        ) {
-
-            throw new Error(
-
-                "ERPLY Login Failed"
-
-            );
-
-        }
+        if (!data.status || data.status.responseStatus !== "ok")
+            {
+               throw new Error("ERPLY Login Failed");
+            }
 
         sessionKey = data.records[0].sessionKey;
 
         // Cache for 55 minutes
-
         sessionExpiry = Date.now() + (55 * 60 * 1000);
-
         console.log("ERPLY Login Successful");
 
         return sessionKey;
-
     }
-
-    catch (err) {
-
+    catch (err) 
+    {
         console.error(err.response?.data || err.message);
-
         throw err;
-
     }
 
 }
@@ -123,150 +79,101 @@ async function verifyUser() {
 */
 
 function today() {
-
     const d = new Date();
-
     const year = d.getFullYear();
-
     const month = String(d.getMonth() + 1).padStart(2, "0");
-
     const day = String(d.getDate()).padStart(2, "0");
-
     return `${year}-${month}-${day}`;
-
 }
-
 /*
 ====================================================
     DOWNLOAD CSV
 ====================================================
 */
 
-async function downloadCSV(url) {
-
-    const response = await axios.get(url, {
-
-        responseType: "text"
-
-    });
-
+async function downloadCSV(url) 
+{
+    const response = await axios.get(url, {responseType: "text"});
     return response.data;
-
 }
-function parseCSV(text) {
 
+function parseCSV(text) 
+{
     const rows = [];
-
     let row = [];
-
     let value = "";
-
     let inQuotes = false;
-
-    for (let i = 0; i < text.length; i++) {
-
-        const c = text[i];
-
-        if (c === '"') {
-
-            if (inQuotes && text[i + 1] === '"') {
-
-                value += '"';
-
-                i++;
-
-            }
-            else {
-
-                inQuotes = !inQuotes;
-
-            }
-
-        }
-
-        else if (c === "," && !inQuotes) {
-
-            row.push(value);
-
-            value = "";
-
-        }
-
-        else if ((c === "\n" || c === "\r") && !inQuotes) {
-
-            if (value !== "" || row.length > 0) {
-
-                row.push(value);
-
-                rows.push(row);
-
-            }
-
-            row = [];
-
-            value = "";
-
-            if (c === "\r" && text[i + 1] === "\n") {
-                i++;
-            }
-
-        }
-
-        else {
-
+    for (let i = 0; i < text.length; i++) 
+        {
+            const c = text[i];
+            if (c === '"') 
+                {
+                    if (inQuotes && text[i + 1] === '"') 
+                        {
+                            value += '"';
+                            i++;
+                        }
+                    else 
+                        {
+                            inQuotes = !inQuotes;
+                        }
+                }
+            else if (c === "," && !inQuotes) 
+                {
+                    row.push(value);
+                    value = "";
+                }
+            else if ((c === "\n" || c === "\r") && !inQuotes) 
+                {
+                    if (value !== "" || row.length > 0) 
+                        {
+                            row.push(value);
+                            rows.push(row);
+                        }
+                    row = [];
+                    value = "";
+                    if (c === "\r" && text[i + 1] === "\n") {
+                        i++;
+                    }
+                }
+        else 
+            {
             value += c;
+            }
+    }
 
+    if (value !== "" || row.length > 0) 
+        {
+            row.push(value);
+            rows.push(row);
+        }
+        return rows;
+}
+
+function getTotalSales(csv) {
+    const rows = parseCSV(csv);
+    if (rows.length < 2) 
+        {
+            return 0;
         }
 
-    }
+    const headers = rows[0].map(h =>h.replace(/"/g, "").trim());
+    const salesIndex = headers.indexOf("SALES_WITH_VAT_TOTAL");
 
-    if (value !== "" || row.length > 0) {
+    if (salesIndex === -1) 
+        {
+            console.log("SALES_WITH_VAT_TOTAL column not found.");
+            return 0;
+        }
 
-        row.push(value);
-
-        rows.push(row);
-
-    }
-
-    return rows;
-
-}
-function getTotalSales(csv) {
-
-    const rows = parseCSV(csv);
-
-    if (rows.length < 2) {
-        return 0;
-    }
-
-    const headers = rows[0].map(h =>
-        h.replace(/"/g, "").trim()
-    );
-
-    const salesIndex =
-        headers.indexOf("SALES_WITH_VAT_TOTAL");
-
-    if (salesIndex === -1) {
-        console.log("SALES_WITH_VAT_TOTAL column not found.");
-        return 0;
-    }
-
-    const totalRow = rows.find(row =>
-        row.some(cell =>
-            cell.trim().toUpperCase() === "TOTAL"
-        )
-    );
+    const totalRow = rows.find(row => row.some(cell => cell.trim().toUpperCase() === "TOTAL"));
 
     if (!totalRow) {
         console.log("TOTAL row not found.");
         return 0;
     }
 
-    const totalSales =
-        parseFloat(totalRow[salesIndex]) || 0;
-
-    
-
+    const totalSales = parseFloat(totalRow[salesIndex]) || 0;
     return totalSales;
 
 }
@@ -280,92 +187,152 @@ function getTotalSales(csv) {
 function formatDate(date) {
 
     const year = date.getFullYear();
-
     const month = String(date.getMonth() + 1).padStart(2, "0");
-
     const day = String(date.getDate()).padStart(2, "0");
-
     return `${year}-${month}-${day}`;
-
 }
 
 
 async function getSalesReport(reportType, dateStart = null, dateEnd = null) {
+    const sessionKey = await verifyUser();
+    const todayDate = today();
+    dateStart = dateStart || todayDate;
+    dateEnd = dateEnd || todayDate;
+    const params = new URLSearchParams();
 
-const sessionKey = await verifyUser();
+    params.append("clientCode", CLIENT_CODE);
+    params.append("sessionKey", sessionKey);
 
-const todayDate = today();
+    params.append("request", "getSalesReport");
 
-dateStart = dateStart || todayDate;
-dateEnd = dateEnd || todayDate;
+    params.append("dateStart", dateStart);
+    params.append("dateEnd", dateEnd);
 
-const params = new URLSearchParams();
+    params.append("warehouseID", "1");
+    params.append("byStockOfficeID", "1");
 
-params.append("clientCode", CLIENT_CODE);
-params.append("sessionKey", sessionKey);
+    params.append("reportType", reportType);
+    params.append("responseType", "json");
 
-params.append("request", "getSalesReport");
-
-params.append("dateStart", dateStart);
-params.append("dateEnd", dateEnd);
-
-params.append("warehouseID", "1");
-params.append("byStockOfficeID", "1");
-
-params.append("reportType", reportType);
-params.append("responseType", "json");
-
-const response = await axios.post(
-    ERPLY_URL,
-    params,
-    {
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-    }
-);
-
+    const response = await axios.post(ERPLY_URL,params,{headers: {"Content-Type": "application/x-www-form-urlencoded"}});
     const data = response.data;
-    //console.log(JSON.stringify(data, null, 2));
 
-    if (
-
+    if 
+    (
         !data.records ||
-
         data.records.length === 0 ||
-
         !data.records[0].reportLink
-
-    ) {
-
+    ) 
+    {
         throw new Error("No report returned.");
-
     }
 
     const reportLink = data.records[0].reportLink;
-
     const csv = await downloadCSV(reportLink);
-
     return csv;
-
 }
-function getTargets() {
 
-    const workbook = XLSX.readFile(
-        path.join(
-            __dirname,
-            "targets",
-            "TargetSheet.xlsx"
-        )
+async function getTransferReport(date) {
+
+    const sessionKey = await verifyUser();
+
+    const params = new URLSearchParams();
+
+    params.append("clientCode", CLIENT_CODE);
+    params.append("sessionKey", sessionKey);
+
+    params.append("request", "getInventoryTransfers");
+
+    params.append("recordsOnPage", "100");
+    params.append("pageNo", "1");
+
+    params.append("getProductInfo", "1");
+    params.append("getRows", "1");
+
+    params.append("dateFrom", date);
+    params.append("dateTo", date);
+    
+    
+
+    const response = await axios.post(
+        ERPLY_URL,
+        params,
+        {
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            }
+        }
     );
 
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    console.log(
+    JSON.stringify(response.data.records[0], null, 2)
+    );
 
-    const data = XLSX.utils.sheet_to_json(sheet, {
-        header: 1
+    return response.data;
+}
+
+async function getProductsByIDs(productIDs) {
+
+    if (productIDs.length === 0) {
+        return {};
+    }
+
+    const lookup = {};
+
+    const sessionKey = await verifyUser();
+
+    const params = new URLSearchParams();
+
+    params.append("clientCode", CLIENT_CODE);
+    params.append("sessionKey", sessionKey);
+    params.append("request", "getProducts");
+
+    params.append("recordsOnPage", productIDs.length);
+    params.append("pageNo", "1");
+
+    // ERPLY accepts comma-separated IDs
+    params.append("productIDs", productIDs.join(","));
+
+    const response = await axios.post(
+        ERPLY_URL,
+        params,
+        {
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            }
+        }
+    );
+
+    response.data.records.forEach(product => {
+
+        const ukSize =
+            (product.variationDescription || [])
+                .find(v => v.name === "UK Size")
+                ?.value || "";
+
+        lookup[product.productID] = {
+
+            code: product.code,
+            name: product.name,
+            size: ukSize
+
+        };
+
     });
-    //console.log(data);
 
+    return lookup;
+
+}
+
+
+function getTargets() {
+
+    const workbook = XLSX.readFile(path.join(__dirname,"targets","TargetSheet.xlsx"));
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(sheet, {header: 1});
+    
     // Monthly target is in B3
     const monthlyTarget = data[2][1];
 
@@ -373,26 +340,32 @@ function getTargets() {
     const today = new Date().getDate();
 
     let dailyTarget = 0;
+    let mtdTarget = 0;
 
     // Daily targets start on row 5 (index 4)
     for (let i = 4; i < data.length; i++) {
 
-        if (Number(data[i][1]) === today) {
+        const day = Number(data[i][1]);
+        const target = Number(data[i][2]) || 0;
 
-            dailyTarget = data[i][2];
-            break;
-
+        if (day > 0 && day <= today) {
+            mtdTarget += target;
         }
 
+        if (day === today) {
+            dailyTarget = target;
+        }
     }
    
 
     return {
-        monthlyTarget,
-        dailyTarget
-    };
+            monthlyTarget,
+            dailyTarget,
+            mtdTarget
+        };
 
 }
+
 /*
 ====================================================
     API
@@ -401,65 +374,148 @@ function getTargets() {
 
 app.get("/api/report", async (req, res) => {
 
-    try {
-
+    try 
+    {
         const productCSV = await getSalesReport("SALES_BY_PRODUCT");
+        const cashierCSV = await getSalesReport("SALES_BY_CASHIER");
 
-const cashierCSV = await getSalesReport("SALES_BY_CASHIER");
+        // Month To Date dates
+        const now = new Date();
+        const monthStart = formatDate(new Date(now.getFullYear(),now.getMonth(),1));
+        const monthEnd = formatDate(now);
 
-// Month To Date dates
-const now = new Date();
+        const monthToDateCSV = await getSalesReport("SALES_BY_PRODUCT",monthStart,monthEnd);
+        const monthToDateSales = getTotalSales(monthToDateCSV);
+        const targets = getTargets();
 
-const monthStart = formatDate(
-    new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1
-    )
-);
+        res.json({
+            productReport: productCSV,
+            cashierReport: cashierCSV,
+            monthToDateSales,
+            monthlyTarget: targets.monthlyTarget,
+            dailyTarget: targets.dailyTarget,
+            mtdTarget: targets.mtdTarget
+        });
 
-const monthEnd = formatDate(now);
-
-
-const monthToDateCSV = await getSalesReport(
-    "SALES_BY_PRODUCT",
-    monthStart,
-    monthEnd
-);
-const monthToDateSales = getTotalSales(monthToDateCSV);
-const targets = getTargets();
-
-res.json({
-
-    productReport: productCSV,
-
-    cashierReport: cashierCSV,
-
-    monthToDateSales,
-
-    monthlyTarget: targets.monthlyTarget,
-
-    dailyTarget: targets.dailyTarget
+    }
+    catch (err) 
+    {
+        console.error(err);
+        res.status(500).json({success: false,error: err.message});
+    }
 
 });
 
-    }
+app.get("/api/transfers", async (req, res) => {
 
+    try {
+
+        const date = req.query.date || today();
+
+        // Get transfers
+        const transfers = await getTransferReport(date);
+
+        // Collect every unique productID
+        const productIDs = [
+            ...new Set(
+                transfers.records.flatMap(t =>
+                    t.rows.map(r => r.productID)
+                )
+            )
+        ];
+
+        console.log(`Products needed: ${productIDs.length}`);
+
+        // Load ONLY those products
+        const productLookup =
+            await getProductsByIDs(productIDs);
+
+        // Add product details to each row
+        transfers.records.forEach(transfer => {
+
+            transfer.rows.forEach(row => {
+
+                const product =
+                    productLookup[row.productID];
+
+                row.code = product?.code || "";
+                row.name = product?.name || `Product ${row.productID}`;
+                row.size = product?.size || "";
+
+            });
+
+        });
+
+        const warehouseLookup =
+            await getWarehouseLookup();
+            transfers.records.forEach(transfer => {
+
+    const d = new Date(transfer.added * 1000);
+
+    transfer.time = d.toLocaleTimeString("en-ZA", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    });
+
+    });
+
+        res.json({
+
+            transfers: transfers.records,
+            warehouses: warehouseLookup,
+            products: productLookup
+
+        });
+
+    }
     catch (err) {
 
         console.error(err);
 
         res.status(500).json({
-
-            success: false,
-
             error: err.message
-
         });
 
     }
 
 });
+
+
+async function getWarehouseLookup() {
+
+    const sessionKey = await verifyUser();
+
+    const params = new URLSearchParams();
+
+    params.append("clientCode", CLIENT_CODE);
+    params.append("sessionKey", sessionKey);
+
+    params.append("request", "getWarehouses");
+
+    const response = await axios.post(
+        ERPLY_URL,
+        params,
+        {
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            }
+        }
+    );
+
+    const lookup = {};
+
+    response.data.records.forEach(w => {
+
+        lookup[w.warehouseID] = w.name;
+
+    });
+
+    return lookup;
+
+}
+
 
 /*
 ====================================================
@@ -467,16 +523,8 @@ res.json({
 ====================================================
 */
 
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
 
-    console.log("");
-
-    console.log("--------------------------------");
-
-    console.log("ERPLY Sales Report");
-
-    console.log(`http://localhost:${PORT}`);
-
-    console.log("--------------------------------");
-
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
 });

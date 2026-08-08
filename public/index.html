@@ -18,82 +18,169 @@
 
 <div class="container">
 
-    <h1>Daily Sales Report</h1>
+    <h1>Daily Report</h1>
 
     <div class="date-box">
-
         <strong>Today's Date:</strong>
-
         <span id="todayDate"></span>
-
     </div>
 
-        <button id="showReportBtn">Show Report</button>
-        <button id="shareWhatsAppBtn">Share Summary</button>
+    <div class="toolbar">
+
+        <button id="showReportBtn">
+            Show Sales
+        </button>
+
+        <button id="showTransfersBtn">
+            Show Transfers
+        </button>
+
+        <button id="shareWhatsAppBtn">
+        Share Summary
+        </button>
+
+        <input
+            type="date"
+            id="reportDate">
+
+    </div>
 
     <div id="dashboard" class="dashboard hidden">
+        
+        <div class="card">
+            <h3>Total Sales</h3>
+            <span id="totalSales">R 0.00</span>
+        </div>
 
-    <div class="card">
-        <h3>Total Sales</h3>
-        <span id="totalSales">R 0.00</span>
+        <div class="card">
+            <h3>Total Qty Sold</h3>
+            <span id="totalQty">0</span>
+        </div>
+
+        <div class="card">
+            <h3>Transactions</h3>
+            <span id="totalTransactions">0</span>
+        </div>
+
+        <div class="card">
+            <h3>Average Sale</h3>
+            <span id="averageSale">R 0.00</span>
+        </div>
+
+        <div class="card">
+            <h3>Targets</h3>
+            
+            <p>Daily:
+                <strong id="dailyTarget">R0.00</strong>
+            </p>
+            <p>Var to Target:
+                <strong id="varianceTarget">R0.00</strong>
+            </p>
+            <p>Daily:
+                <strong id="dailyTarget">R0.00</strong>
+            </p>
+
+            <p>Variance:
+                <strong id="varianceTarget">R0.00</strong>
+            </p>
+        </div>
+
+        <div class="card">
+            <h3>UPT</h3>
+            <span id="upt">0.00</span>
+        </div>
+
+        <div class="card">
+
+    <h3>Daily Target Progress</h3>
+
+    <div class="progress-ring">
+
+        <svg width="170" height="170">
+
+            <circle>
+                class="progress-bg"
+                cx="85"
+                cy="85"
+                r="70">
+            </circle>
+
+            <circle
+                id="progressCircle"
+                class="progress-value"
+                cx="85"
+                cy="85"
+                r="70">
+            </circle>
+
+        </svg>
+
+        <div
+            id="progressPercent"
+            class="progress-number">
+            0%
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Total Qty Sold</h3>
-        <span id="totalQty">0</span>
+</div>
+
+        <div class="card">
+
+            <h3>Month To Date</h3>
+
+            <div class="metric">
+                <div class="metric-label">Sales</div>
+                <div class="metric-value" id="monthToDate"></div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">MTD Target</div>
+                <div class="metric-value" id="mtdTarget"></div>
+            </div>
+
+            <div class="metric">
+                <div class="metric-label">Monthly Target</div>
+                <div class="metric-value" id="monthlyTarget"></div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Transactions</h3>
-        <span id="totalTransactions">0</span>
+
+    <div id="transferDashboard" class="hidden">
+
+        <div class="dashboard">
+
+            <div class="card">
+                <h3>Transfers</h3>
+                <p id="transferCount">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Items Moved</h3>
+                <p id="itemsMoved">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Retail → Storeroom</h3>
+                <p id="retailToStore">0</p>
+            </div>
+
+            <div class="card">
+                <h3>Storeroom → Retail</h3>
+                <p id="storeToRetail">0</p>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="card">
-        <h3>Average Sale</h3>
-        <span id="averageSale">R 0.00</span>
-    </div>
-    <div class="card">
 
-    <h3>Targets</h3>
-
-    <p>Monthly:
-        <strong id="monthlyTarget">R0.00</strong>
-    </p>
-
-    <p>Daily:
-        <strong id="dailyTarget">R0.00</strong>
-    </p>
-
-    <p>Var to Target:
-        <strong id="varianceTarget">R0.00</strong>
-    </p>
-
-    <p>% to Target:
-        <strong id="percentTarget">0%</strong>
-    </p>
-
-</div>
-<div class="card">
-
-    <h3>UPT</h3>
-
-    <span id="upt">0.00</span>
-
-</div>
-<div class="card">
-
-    <h3>Month To Date</h3>
-
-    <span id="monthToDate">R 0.00</span>
-
-</div>
-
-</div>
 
     <div id="loading" class="loading hidden">
-
         Compiling sales report...
-
     </div>
 
     <div id="error" class="error hidden"></div>
@@ -101,11 +188,17 @@
     <div id="reportContainer">
 
         <div class="placeholder">
-
             Click <strong>Show Report</strong> to generate today's sales report.
-
         </div>
+    </div>
 
+</div>
+
+<div class="transfer-wrapper">
+
+    <div
+        id="transferContainer"
+        class="hidden">
     </div>
 
 </div>
