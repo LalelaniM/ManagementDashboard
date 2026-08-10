@@ -6,6 +6,7 @@ const shareWhatsAppBtn = document.getElementById("shareWhatsAppBtn");
 const loading = document.getElementById("loading");
 const error = document.getElementById("error");
 const reportContainer = document.getElementById("reportContainer");
+const reportDate = document.getElementById("reportDate");
 
 const transferDashboard =
     document.getElementById("transferDashboard");
@@ -18,8 +19,7 @@ const showTransfersBtn =
 
 // Display today's date
 const today = new Date();
-const reportDate =
-    document.getElementById("reportDate");
+
 
 reportDate.value =
     today.toISOString().split("T")[0];
@@ -28,7 +28,7 @@ todayDate.textContent = today.toLocaleDateString("en-ZA", {year: "numeric",month
 
 // Button click
 showReportBtn.addEventListener("click", loadReport);
-shareWhatsAppBtn.addEventListener("click", shareWhatsApp);
+//shareWhatsAppBtn.addEventListener("click", shareWhatsApp);
 showTransfersBtn.addEventListener(
     "click",
     loadTransfers
@@ -38,9 +38,9 @@ async function loadReport() {
 
     transferDashboard.classList.add("hidden");
 
-transferContainer.classList.add("hidden");
+    transferContainer.classList.add("hidden");
 
-reportContainer.classList.remove("hidden");
+    reportContainer.classList.remove("hidden");
 
     loading.classList.remove("hidden");
     error.classList.add("hidden");
@@ -50,7 +50,11 @@ reportContainer.classList.remove("hidden");
 
     try 
     {
-        const response = await fetch("/api/report");
+        const selectedDate = reportDate.value;
+
+        const response = await fetch(
+            `/api/report?date=${selectedDate}`
+        );
 
         if (!response.ok) 
             {

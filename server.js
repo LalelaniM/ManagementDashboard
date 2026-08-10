@@ -15,10 +15,15 @@ app.use(express.static("public"));
     VERIFY USER
 ====================================================
 */
-const CLIENT_CODE = process.env.CLIENT_CODE;
+/*const CLIENT_CODE = process.env.CLIENT_CODE;
 const USERNAME = process.env.USERNAME;
 const PASSWORD = process.env.PASSWORD;
-const ERPLY_URL = process.env.ERPLY_URL;
+const ERPLY_URL = process.env.ERPLY_URL;*/
+
+const CLIENT_CODE = "538868";
+const USERNAME = "Gift";
+const PASSWORD = "Gift9663";
+const ERPLY_URL =`https://538868.erply.com/api/`;
 
 
 let sessionKey = null;
@@ -321,43 +326,53 @@ async function getProductsByIDs(productIDs) {
 }
 
 
-function getTargets() {
+function getTargets(selectedDate) {
 
-    const workbook = XLSX.readFile(path.join(__dirname,"targets","TargetSheet.xlsx"));
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(sheet, {header: 1});
-    
+    const workbook = XLSX.readFile(
+        path.join(__dirname, "targets", "TargetSheet.xlsx")
+    );
+
+    const sheet =
+        workbook.Sheets[workbook.SheetNames[0]];
+
+    const data =
+        XLSX.utils.sheet_to_json(
+            sheet,
+            { header: 1 }
+        );
+
     // Monthly target is in B3
     const monthlyTarget = data[2][1];
 
-    // Get today's day number (1-31)
-    const today = new Date().getDate();
+    // Get selected day's number
+    const selectedDay =
+        new Date(selectedDate + "T12:00:00").getDate();
 
     let dailyTarget = 0;
     let mtdTarget = 0;
 
-    // Daily targets start on row 5 (index 4)
+    // Daily targets start on row 5
     for (let i = 4; i < data.length; i++) {
 
         const day = Number(data[i][1]);
         const target = Number(data[i][2]) || 0;
 
-        if (day > 0 && day <= today) {
+        // Add all targets up to selected day
+        if (day > 0 && day <= selectedDay) {
             mtdTarget += target;
         }
 
-        if (day === today) {
+        // Get target for selected day
+        if (day === selectedDay) {
             dailyTarget = target;
         }
     }
-   
 
     return {
-            monthlyTarget,
-            dailyTarget,
-            mtdTarget
-        };
-
+        monthlyTarget,
+        dailyTarget,
+        mtdTarget
+    };
 }
 
 /*
@@ -368,19 +383,47 @@ function getTargets() {
 
 app.get("/api/report", async (req, res) => {
 
+    const date = req.query.date || today();
+
     try 
     {
-        const productCSV = await getSalesReport("SALES_BY_PRODUCT");
-        const cashierCSV = await getSalesReport("SALES_BY_CASHIER");
+        // Daily reports for the selected date
+        const productCSV = await getSalesReport(
+            "SALES_BY_PRODUCT",
+            date,
+            date
+        );
+
+        const cashierCSV = await getSalesReport(
+            "SALES_BY_CASHIER",
+            date,
+            date
+        );
 
         // Month To Date dates
-        const now = new Date();
-        const monthStart = formatDate(new Date(now.getFullYear(),now.getMonth(),1));
-        const monthEnd = formatDate(now);
+        const selectedDate = new Date(date + "T12:00:00");
 
-        const monthToDateCSV = await getSalesReport("SALES_BY_PRODUCT",monthStart,monthEnd);
+        const monthStart = formatDate(
+            new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                1
+            )
+        );
+
+        const monthEnd = date;
+
+        const monthToDateCSV = await getSalesReport(
+            "SALES_BY_PRODUCT",
+            monthStart,
+            monthEnd
+        );
+
         const monthToDateSales = getTotalSales(monthToDateCSV);
-        const targets = getTargets();
+
+        const targets = getTargets(date);
+
+
 
         res.json({
             productReport: productCSV,
