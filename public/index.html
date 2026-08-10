@@ -25,8 +25,18 @@
         <span id="todayDate"></span>
     </div>
 
-    <div class="toolbar">
+    <div class="date-selector">
+        <label for="reportDate">Report Date</label>
 
+        <div class="date-input-wrapper">
+            <span class="calendar-icon">📅</span>
+
+            <input type="date" id="reportDate">
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <br>
         <button id="showReportBtn">
             Show Sales
         </button>
@@ -39,18 +49,78 @@
         Share Summary
         </button>
 
-        <input
-            type="date"
-            id="reportDate">
-
+        
     </div>
 
     <div id="dashboard" class="dashboard hidden">
-        
+
         <div class="card">
             <h3>Total Sales</h3>
             <span id="totalSales">R 0.00</span>
         </div>
+
+        <div class="card">
+
+            <h3>Daily Target Progress</h3>
+
+            <div class="progress-ring">
+
+                <svg width="210" height="210" viewBox="0 0 210 210">
+
+                    <!-- Outer background -->
+                    <circle
+                        class="outer-progress-bg"
+                        cx="105"
+                        cy="105"
+                        r="88">
+                    </circle>
+
+                    <!-- Outer progress: 100% to 200% -->
+                    <circle
+                        id="outerProgressCircle"
+                        class="outer-progress-value"
+                        cx="105"
+                        cy="105"
+                        r="88">
+                    </circle>
+
+                    <!-- Inner background -->
+                    <circle
+                        class="progress-bg"
+                        cx="105"
+                        cy="105"
+                        r="70">
+                    </circle>
+
+                    <!-- Inner progress: 0% to 100% -->
+                    <circle
+                        id="progressCircle"
+                        class="progress-value"
+                        cx="105"
+                        cy="105"
+                        r="70">
+                    </circle>
+
+                </svg>
+
+                <div
+                    id="progressPercent"
+                    class="progress-number">
+                    0%
+                </div>
+
+            </div>
+            <p>Daily:
+                <strong id="dailyTarget">R0.00</strong>
+            </p>
+            <br>
+            <p>Var to Target:
+                <strong id="varianceTarget">R0.00</strong>
+            </p>
+
+        </div>
+        
+        
 
         <div class="card">
             <h3>Total Qty Sold</h3>
@@ -67,15 +137,10 @@
             <span id="averageSale">R 0.00</span>
         </div>
 
-        <div class="card">
+        <!--<div class="card">
             <h3>Targets</h3>
             
-            <p>Daily:
-                <strong id="dailyTarget">R0.00</strong>
-            </p>
-            <p>Var to Target:
-                <strong id="varianceTarget">R0.00</strong>
-            </p>
+            
             <p>Daily:
                 <strong id="dailyTarget">R0.00</strong>
             </p>
@@ -83,47 +148,12 @@
             <p>Variance:
                 <strong id="varianceTarget">R0.00</strong>
             </p>
-        </div>
+        </div> -->
 
         <div class="card">
             <h3>UPT</h3>
             <span id="upt">0.00</span>
         </div>
-
-        <div class="card">
-
-    <h3>Daily Target Progress</h3>
-
-    <div class="progress-ring">
-
-        <svg width="170" height="170">
-
-            <circle>
-                class="progress-bg"
-                cx="85"
-                cy="85"
-                r="70">
-            </circle>
-
-            <circle
-                id="progressCircle"
-                class="progress-value"
-                cx="85"
-                cy="85"
-                r="70">
-            </circle>
-
-        </svg>
-
-        <div
-            id="progressPercent"
-            class="progress-number">
-            0%
-        </div>
-
-    </div>
-
-</div>
 
         <div class="card">
 

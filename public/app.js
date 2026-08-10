@@ -178,6 +178,7 @@ function buildReports(productCSV, cashierCSV) {
             productCSV,
             [
                 "PRODUCT_ID",
+                "LINE_NUMBER",
                 "SERVICE_ID",
                 "EAN_CODE",
                 "UNIT",
@@ -450,32 +451,98 @@ function updateDashboard(
         });
 
         const circle = document.getElementById("progressCircle");
+        const outerCircle = document.getElementById("outerProgressCircle");
         const percentText = document.getElementById("progressPercent");
 
-        const radius = 70;
-        const circumference = 2 * Math.PI * radius;
 
-        // Actual percentage (can exceed 100)
+        // =====================================
+        // INNER RING: 0% → 100%
+        // =====================================
+
+        const innerRadius = 70;
+        const innerCircumference =
+            2 * Math.PI * innerRadius;
+
         const actualPercent = percentToTarget;
 
-        // Ring fill is capped at 100%
-        const ringPercent = Math.min(actualPercent, 100);
+        const innerPercent =
+            Math.min(actualPercent, 100);
 
-        const offset = circumference - (ringPercent / 100) * circumference;
+        const innerOffset =
+            innerCircumference -
+            (innerPercent / 100) * innerCircumference;
 
-        circle.style.strokeDasharray = circumference;
-        circle.style.strokeDashoffset = offset;
+        circle.style.strokeDasharray =
+            innerCircumference;
 
-        // Display the real percentage
-        percentText.textContent = actualPercent.toFixed(0) + "%";
+        circle.style.strokeDashoffset =
+            innerOffset;
+
+
+        // =====================================
+        // OUTER RING: 100% → 200%
+        // =====================================
+
+        // =====================================
+        // OUTER RING: 100% → 200%
+        // =====================================
+
+        const outerRadius = 88;
+        const outerCircumference =
+            2 * Math.PI * outerRadius;
+
+        let outerPercent = 0;
+
+        if (actualPercent > 100) {
+
+            outerPercent =
+                Math.min(actualPercent - 100, 100);
+
+        }
+
+        const outerOffset =
+            outerCircumference -
+            (outerPercent / 100) * outerCircumference;
+
+        outerCircle.style.strokeDasharray =
+            outerCircumference;
+
+        outerCircle.style.strokeDashoffset =
+            outerOffset;
+
+
+        // Only show the outer ring ABOVE 100%
+        if (actualPercent > 100) {
+
+            outerCircle.style.opacity = "1";
+
+        } else {
+
+            outerCircle.style.opacity = "0";
+
+        }
+
+
+        // =====================================
+        // DISPLAY ACTUAL PERCENTAGE
+        // =====================================
+
+        percentText.textContent =
+            actualPercent.toFixed(0) + "%";
 
         // Change colour when target exceeded
         if (actualPercent >= 100) {
             circle.style.stroke = "#22c55e";      // Green
-        } else if (actualPercent >= 80) {
+        } else if (actualPercent >= 50) {
             circle.style.stroke = "#f59e0b";      // Orange
         } else {
             circle.style.stroke = "#3b82f6";      // Blue
+        }
+
+        if (actualPercent > 100) {
+            outerCircle.style.stroke = "#22c55e";
+        } else {
+            outerCircle.style.stroke = "transparent";
         }
         
 }

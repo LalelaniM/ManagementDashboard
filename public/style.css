@@ -240,7 +240,7 @@ tbody tr:hover {
     text-align:center;
 }
 
-.progress-ring{
+/*.progress-ring{
     position:relative;
     width:170px;
     height:170px;
@@ -287,6 +287,68 @@ tbody tr:hover {
     font-size: 2.2rem;
     font-weight: 700;
     text-shadow: 0 2px 6px rgba(0,0,0,.35);
+}*/
+.progress-ring {
+    position: relative;
+    width: 210px;
+    height: 210px;
+    margin: 0 auto;
+}
+
+.progress-ring svg {
+    display: block;
+    transform: rotate(-90deg);
+}
+
+/* Inner background */
+.progress-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 12;
+}
+
+/* Inner progress */
+.progress-value {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 12;
+    stroke-linecap: round;
+
+    transition: stroke-dashoffset 1.5s ease;
+}
+
+/* Outer background */
+.outer-progress-bg {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 12;
+}
+
+/* Outer progress */
+.outer-progress-value {
+    fill: none;
+    stroke: #22c55e;
+    stroke-width: 12;
+    stroke-linecap: round;
+    opacity: 0;
+    transition:
+        stroke-dashoffset 1.5s ease,
+        opacity 0.3s ease;
+}
+
+.progress-number {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+
+    white-space: nowrap;
 }
 /* ==============================
    TRANSFER TABLE CONTAINER
@@ -349,4 +411,121 @@ tbody tr:hover {
 .nested-table td {
     padding: 8px;
     text-align: left;
+}
+.date-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.date-selector label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.calendar-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+#reportDate {
+    height: 42px;
+    padding: 0 12px 0 38px;
+
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+
+    background: white;
+
+    font-size: 14px;
+    font-family: inherit;
+
+    cursor: pointer;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#reportDate:hover {
+    border-color: #0066cc;
+}
+
+#reportDate:focus {
+    border-color: #0066cc;
+
+    box-shadow:
+        0 0 0 3px rgba(0, 102, 204, 0.12);
+}
+@media (max-width: 600px) {
+
+    .date-selector {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .date-input-wrapper {
+        width: 100%;
+        max-width: 220px;
+    }
+
+    #reportDate {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+}
+.date-box {
+    text-align: center;
+    margin: 15px auto;
+}
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.table-wrapper th,
+.table-wrapper td {
+    padding: 8px 10px;
+    white-space: nowrap;
+    text-align: center;
+}
+@media (max-width: 600px) {
+
+    .table-wrapper {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .table-wrapper table {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .table-wrapper th,
+    .table-wrapper td {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+
 }
