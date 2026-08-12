@@ -21,8 +21,6 @@ const PASSWORD = process.env.PASSWORD;
 const ERPLY_URL = process.env.ERPLY_URL;
 
 
-
-
 let sessionKey = null;
 let sessionExpiry = 0;
 

@@ -162,19 +162,102 @@
 
             <h3>Month To Date</h3>
 
-            <div class="metric">
-                <div class="metric-label">Sales</div>
-                <div class="metric-value" id="monthToDate"></div>
+            <div class="metric-box">
+                <h4>Sales</h4>
+                <div class="metric-value" id="monthToDate">
+                    R 0.00 <br>
+                </div>
             </div>
 
-            <div class="metric">
-                <div class="metric-label">MTD Target</div>
-                <div class="metric-value" id="mtdTarget"></div>
+            <div class="metric-box">
+                <br>
+                <h4>MTD Target</h4>
+                <div class="metric-value" id="mtdTarget">
+                    R 0.00
+                </div>
             </div>
 
-            <div class="metric">
-                <div class="metric-label">Monthly Target</div>
-                <div class="metric-value" id="monthlyTarget"></div>
+            <div class="mtd-rings">
+
+                <!-- MTD TARGET RING -->
+                <div class="mtd-ring-item">
+
+                    <div class="mtd-progress-ring">
+
+                        <svg width="140" height="140"
+                            viewBox="0 0 140 140">
+
+                            <circle
+                                class="mtd-ring-bg"
+                                cx="70"
+                                cy="70"
+                                r="55">
+                            </circle>
+
+                            <circle
+                                id="mtdProgressCircle"
+                                class="mtd-ring-value"
+                                cx="70"
+                                cy="70"
+                                r="55">
+                            </circle>
+
+                        </svg>
+
+                        <div
+                            id="mtdProgressPercent"
+                            class="mtd-progress-number">
+                            0%
+                        </div>
+
+                    </div>
+
+                    <div class="mtd-ring-label">
+                        Sales vs MTD Target
+                    </div>
+
+                </div>
+
+
+                <!-- MONTHLY TARGET RING -->
+                <div class="mtd-ring-item">
+
+                    <div class="mtd-progress-ring">
+
+                        <svg width="140" height="140"
+                            viewBox="0 0 140 140">
+
+                            <circle
+                                class="mtd-ring-bg"
+                                cx="70"
+                                cy="70"
+                                r="55">
+                            </circle>
+
+                            <circle
+                                id="monthlyProgressCircle"
+                                class="mtd-ring-value"
+                                cx="70"
+                                cy="70"
+                                r="55">
+                            </circle>
+
+                        </svg>
+
+                        <div
+                            id="monthlyProgressPercent"
+                            class="mtd-progress-number">
+                            0%
+                        </div>
+
+                    </div>
+
+                    <div class="mtd-ring-label">
+                        Monthly Target Progress
+                    </div>
+
+                </div>
+
             </div>
 
         </div>

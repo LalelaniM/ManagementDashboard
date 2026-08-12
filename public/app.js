@@ -331,6 +331,40 @@ function updateDashboard(
     dashboard.classList.remove("hidden");
 
     // ==========================
+    // MTD PROGRESS RINGS
+    // ==========================
+    const mtdCircle =
+            document.getElementById("mtdProgressCircle");
+
+        const mtdPercentText =
+            document.getElementById("mtdProgressPercent");
+
+        const monthlyCircle =
+            document.getElementById("monthlyProgressCircle");
+
+        const monthlyPercentText =
+            document.getElementById("monthlyProgressPercent");
+
+        const mtdRadius = 55;
+        const mtdCircumference =
+            2 * Math.PI * mtdRadius;
+
+            if (mtdCircle && monthlyCircle) {
+
+    mtdCircle.style.strokeDasharray =
+        mtdCircumference;
+
+    mtdCircle.style.strokeDashoffset =
+        mtdCircumference;
+
+    monthlyCircle.style.strokeDasharray =
+        mtdCircumference;
+
+    monthlyCircle.style.strokeDashoffset =
+        mtdCircumference;
+}
+
+    // ==========================
     // PRODUCT REPORT
     // ==========================
 
@@ -394,9 +428,100 @@ function updateDashboard(
         ? (monthToDateSales / Number(monthlyTarget)) * 100
         : 0;
 
+        console.log("mtdCircle:", mtdCircle);
+        console.log("mtdPercentText:", mtdPercentText);
+        console.log("monthlyCircle:", monthlyCircle);
+        console.log("monthlyPercentText:", monthlyPercentText);
+
+
+
+        // --------------------------
+        // MTD TARGET
+        // --------------------------
+
+        // ==========================
+// MTD PROGRESS RINGS
+// ==========================
+
+if (
+    mtdCircle &&
+    mtdPercentText &&
+    monthlyCircle &&
+    monthlyPercentText
+) {
+
+    // --------------------------
+    // MTD TARGET
+    // --------------------------
+
+    const mtdRingPercent =
+        Math.min(mtdProgress, 100);
+
+    const mtdOffset =
+        mtdCircumference -
+        (mtdRingPercent / 100) *
+        mtdCircumference;
+
+    mtdCircle.style.strokeDasharray =
+        mtdCircumference;
+
+    mtdCircle.style.strokeDashoffset =
+        mtdOffset;
+
+    mtdPercentText.textContent =
+        mtdProgress.toFixed(0) + "%";
+
+
+    // --------------------------
+    // MONTHLY TARGET
+    // --------------------------
+
+    const monthlyRingPercent =
+        Math.min(monthlyProgress, 100);
+
+    const monthlyOffset =
+        mtdCircumference -
+        (monthlyRingPercent / 100) *
+        mtdCircumference;
+
+    monthlyCircle.style.strokeDasharray =
+        mtdCircumference;
+
+    monthlyCircle.style.strokeDashoffset =
+        monthlyOffset;
+
+    monthlyPercentText.textContent =
+        monthlyProgress.toFixed(0) + "%";
+
+}
+
+
+        // --------------------------
+        // MONTHLY TARGET
+        // --------------------------
+
+        const monthlyRingPercent =
+            Math.min(monthlyProgress, 100);
+
+        const monthlyOffset =
+            mtdCircumference -
+            (monthlyRingPercent / 100) *
+            mtdCircumference;
+
+        monthlyCircle.style.strokeDasharray =
+            mtdCircumference;
+
+        monthlyCircle.style.strokeDashoffset =
+            monthlyOffset;
+
+        monthlyPercentText.textContent =
+            monthlyProgress.toFixed(0) + "%";
+
     // ==========================
     // UPDATE DASHBOARD
     // ==========================
+
+  
 
     document.getElementById("totalSales").textContent ="R " + totalSales.toLocaleString("en-ZA", {minimumFractionDigits: 2,maximumFractionDigits: 2});
 
@@ -413,12 +538,12 @@ function updateDashboard(
             maximumFractionDigits: 2
         });
 
-    document.getElementById("monthlyTarget").textContent =
+    /*document.getElementById("monthlyTarget").textContent =
         "R " +
         Number(monthlyTarget).toLocaleString("en-ZA", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
-        });
+        });*/
 
     document.getElementById("dailyTarget").textContent =
         "R " +

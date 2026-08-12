@@ -529,3 +529,62 @@ tbody tr:hover {
     }
 
 }
+.mtd-rings {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 25px;
+}
+
+.mtd-ring-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.mtd-progress-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+}
+
+.mtd-progress-ring svg {
+    transform: rotate(-90deg);
+}
+
+.mtd-ring-bg,
+.mtd-ring-value {
+    fill: none;
+    stroke-width: 10;
+}
+
+.mtd-ring-bg {
+    stroke: rgba(255, 255, 255, 0.2);
+}
+
+.mtd-ring-value {
+    stroke: #22c55e;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.mtd-progress-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+
+    pointer-events: none;
+}
+
+.mtd-ring-label {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+}
