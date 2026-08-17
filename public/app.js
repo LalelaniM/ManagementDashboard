@@ -67,7 +67,8 @@ async function loadReport() {
 
         buildReports(
             reports.productReport,
-            reports.cashierReport
+            reports.cashierReport,
+            reports.top10Products
         );
 
         updateDashboard(
@@ -172,7 +173,7 @@ function parseCSV(text) {
 -------------------------------------
 */
 
-function buildReports(productCSV, cashierCSV) {
+function buildReports(productCSV, cashierCSV, top10Products ) {
 
     reportContainer.innerHTML = "";
 
@@ -219,6 +220,114 @@ function buildReports(productCSV, cashierCSV) {
         )
 
     );
+
+    reportContainer.appendChild(
+    createTop10Table(top10Products)
+    );
+
+}
+
+function createTop10Table(products) {
+
+    const section = document.createElement("div");
+
+    section.style.marginTop = "40px";
+
+    const heading = document.createElement("h2");
+
+    heading.textContent =
+        "Top 10 Most Sold Products - Current Month";
+
+    heading.style.marginBottom = "15px";
+
+    heading.style.color = "#0066cc";
+
+    section.appendChild(heading);
+
+    if (!products || products.length === 0) {
+
+        const message =
+            document.createElement("p");
+
+        message.textContent =
+            "No product sales available.";
+
+        section.appendChild(message);
+
+        return section;
+
+    }
+
+    let html = `
+        <div class="table-wrapper">
+
+            <table class="top-products-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Rank</th>
+
+                        <th>Product</th>
+
+                        <th>Qty Sold</th>
+
+                        <th>Sales</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+    `;
+
+    products.forEach((product, index) => {
+
+        html += `
+
+            <tr>
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+                    ${product.productName}
+                </td>
+
+                <td>
+                    ${Number(product.quantity)
+                        .toLocaleString("en-ZA")}
+                </td>
+
+                <td>
+                    R ${Number(product.sales)
+                        .toLocaleString("en-ZA", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })}
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+    section.innerHTML += html;
+
+    return section;
 
 }
 
@@ -427,12 +536,6 @@ function updateDashboard(
     Number(monthlyTarget) > 0
         ? (monthToDateSales / Number(monthlyTarget)) * 100
         : 0;
-
-        console.log("mtdCircle:", mtdCircle);
-        console.log("mtdPercentText:", mtdPercentText);
-        console.log("monthlyCircle:", monthlyCircle);
-        console.log("monthlyPercentText:", monthlyPercentText);
-
 
 
         // --------------------------

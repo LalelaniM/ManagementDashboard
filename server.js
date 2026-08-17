@@ -15,10 +15,15 @@ app.use(express.static("public"));
     VERIFY USER
 ====================================================
 */
-const CLIENT_CODE = process.env.CLIENT_CODE;
+/*const CLIENT_CODE = process.env.CLIENT_CODE;
 const USERNAME = process.env.USERNAME;
 const PASSWORD = process.env.PASSWORD;
-const ERPLY_URL = process.env.ERPLY_URL;
+const ERPLY_URL = process.env.ERPLY_URL;*/
+
+const CLIENT_CODE = "538868";
+const USERNAME = "Gift";
+const PASSWORD = "Gift9663";
+const ERPLY_URL =`https://538868.erply.com/api/`;
 
 
 let sessionKey = null;
@@ -370,6 +375,130 @@ function getTargets(selectedDate) {
     };
 }
 
+function getTop10Products(csv) {
+
+    const rows = parseCSV(csv);
+
+    if (rows.length < 2) {
+        return [];
+    }
+
+    const headers = rows[0].map(h =>
+        h.replace(/"/g, "").trim()
+    );
+
+    const productNameIndex = headers.findIndex(
+        h => h.toUpperCase() === "NAME"
+    );
+
+    const quantityIndex = headers.findIndex(
+        h => h.toUpperCase() === "SOLD_QUANTITY"
+    );
+
+    const salesIndex = headers.findIndex(
+        h => h.toUpperCase() === "SALES_WITH_VAT_TOTAL"
+    );
+
+    if (
+        productNameIndex === -1 ||
+        quantityIndex === -1 ||
+        salesIndex === -1
+    ) {
+        console.log("ERPLY PRODUCT HEADERS:", headers);
+
+        throw new Error(
+            "Required product columns not found."
+        );
+    }
+
+    const productGroups = {};
+
+    for (const row of rows.slice(1)) {
+
+        // Ignore TOTAL row
+        if (
+            row.some(cell =>
+                cell.trim().toUpperCase() === "TOTAL"
+            )
+        ) {
+            continue;
+        }
+
+        const originalName =
+            (row[productNameIndex] || "")
+                .replace(/"/g, "")
+                .trim();
+
+        const quantity =
+            parseFloat(
+                (row[quantityIndex] || "0")
+                    .replace(/"/g, "")
+                    .replace(/,/g, "")
+            ) || 0;
+
+        const sales =
+            parseFloat(
+                (row[salesIndex] || "0")
+                    .replace(/"/g, "")
+                    .replace(/,/g, "")
+            ) || 0;
+
+        if (!originalName || quantity <= 0) {
+            continue;
+        }
+
+        // ==========================================
+        // REMOVE SIZE FROM PRODUCT NAME
+        // ==========================================
+
+        const productName = originalName
+            .replace(/\s+(Medium|Wide|Narrow)\s+\d+(\.\d+)?$/i, "")
+            .trim();
+
+        // ==========================================
+        // CREATE GROUP
+        // ==========================================
+
+        if (!productGroups[productName]) {
+
+            productGroups[productName] = {
+                productName: productName,
+                quantity: 0,
+                sales: 0
+            };
+
+        }
+
+        // Add quantity from this size
+        productGroups[productName].quantity += quantity;
+
+        // Add sales from this size
+        productGroups[productName].sales += sales;
+
+    }
+
+    // ==========================================
+    // CONVERT GROUPS TO ARRAY
+    // ==========================================
+
+    const products =
+        Object.values(productGroups);
+
+    // ==========================================
+    // SORT BY TOTAL QUANTITY
+    // ==========================================
+
+    products.sort((a, b) =>
+        b.quantity - a.quantity
+    );
+
+    // ==========================================
+    // TOP 10
+    // ==========================================
+
+    return products.slice(0, 10);
+}
+
 /*
 ====================================================
     API
@@ -416,17 +545,28 @@ app.get("/api/report", async (req, res) => {
 
         const monthToDateSales = getTotalSales(monthToDateCSV);
 
+        const top10Products = getTop10Products(monthToDateCSV);
+
         const targets = getTargets(date);
 
 
 
         res.json({
+
             productReport: productCSV,
+
             cashierReport: cashierCSV,
+
             monthToDateSales,
+
+            top10Products,
+
             monthlyTarget: targets.monthlyTarget,
+
             dailyTarget: targets.dailyTarget,
+
             mtdTarget: targets.mtdTarget
+
         });
 
     }
