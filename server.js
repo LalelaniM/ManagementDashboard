@@ -15,15 +15,11 @@ app.use(express.static("public"));
     VERIFY USER
 ====================================================
 */
-/*const CLIENT_CODE = process.env.CLIENT_CODE;
+
+const CLIENT_CODE = process.env.CLIENT_CODE;
 const USERNAME = process.env.USERNAME;
 const PASSWORD = process.env.PASSWORD;
-const ERPLY_URL = process.env.ERPLY_URL;*/
-
-const CLIENT_CODE = "538868";
-const USERNAME = "Gift";
-const PASSWORD = "Gift9663";
-const ERPLY_URL =`https://538868.erply.com/api/`;
+const ERPLY_URL = process.env.ERPLY_URL;
 
 
 let sessionKey = null;
@@ -54,14 +50,14 @@ async function verifyUser() {
 
         if (!data.status || data.status.responseStatus !== "ok")
             {
-               throw new Error("ERPLY Login Failed");
+               throw new Error("Login Failed");
             }
 
         sessionKey = data.records[0].sessionKey;
 
         // Cache for 55 minutes
         sessionExpiry = Date.now() + (55 * 60 * 1000);
-        console.log("ERPLY Login Successful");
+        console.log("Login Successful");
 
         return sessionKey;
     }
